@@ -120,7 +120,7 @@ describe('FormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  /*describe('ngOnInit - Access Control', () => {
+  describe('ngOnInit - Access Control', () => {
     it('should redirect non-admin users to sessions list', () => {
       // Arrange
       sessionService.sessionInformation = mockUserSessionInfo;
@@ -149,7 +149,7 @@ describe('FormComponent', () => {
       // Assert
       expect(navigateSpy).not.toHaveBeenCalledWith(['/sessions']);
     });
-  });*/
+  });
 
   describe('ngOnInit - Create Mode', () => {
     beforeEach(() => {
