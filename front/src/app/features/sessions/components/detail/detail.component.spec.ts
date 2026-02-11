@@ -19,9 +19,7 @@ import { SessionApiService } from '../../services/session-api.service';
 import { Session } from '../../interfaces/session.interface';
 import { Teacher } from '../../../../interfaces/teacher.interface';
 
-
 import { DetailComponent } from './detail.component';
-
 
 describe('DetailComponent', () => {
   let component: DetailComponent;
@@ -71,7 +69,7 @@ describe('DetailComponent', () => {
         MatCardModule,
         MatIconModule,
         MatButtonModule,
-        NoopAnimationsModule,  // ✅ AJOUT pour éviter l'erreur @state.done
+        NoopAnimationsModule,
         ReactiveFormsModule
       ],
       providers: [
@@ -101,6 +99,9 @@ describe('DetailComponent', () => {
 
     jest.spyOn(sessionApiService, 'detail').mockReturnValue(of(mockSession));
     jest.spyOn(teacherService, 'detail').mockReturnValue(of(mockTeacher));
+    
+    
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(DetailComponent);
     component = fixture.componentInstance;
@@ -240,8 +241,7 @@ describe('DetailComponent', () => {
   describe('delete', () => {
     it('should call sessionApiService.delete with sessionId', () => {
       const deleteSpy = jest.spyOn(sessionApiService, 'delete').mockReturnValue(of({}));
-      const snackBarSpy = jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
-      const navigateSpy = jest.spyOn(router, 'navigate');
+      jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
       
       component.delete();
       
@@ -260,13 +260,11 @@ describe('DetailComponent', () => {
     it('should navigate to sessions list after deleting', (done) => {
       jest.spyOn(sessionApiService, 'delete').mockReturnValue(of({}));
       jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
-      const navigateSpy = jest.spyOn(router, 'navigate');
       
       component.delete();
       
-      // ✅ Attendre que l'observable se termine
       setTimeout(() => {
-        expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
+        expect(router.navigate).toHaveBeenCalledWith(['sessions']);
         done();
       }, 100);
     });
@@ -332,15 +330,13 @@ describe('DetailComponent', () => {
     it('should handle complete delete flow for admin', (done) => {
       const deleteSpy = jest.spyOn(sessionApiService, 'delete').mockReturnValue(of({}));
       const snackBarSpy = jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
-      const navigateSpy = jest.spyOn(router, 'navigate');
       
       component.delete();
       
-      // Attendre que l'observable se termine
       setTimeout(() => {
         expect(deleteSpy).toHaveBeenCalledWith('1');
         expect(snackBarSpy).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
-        expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
+        expect(router.navigate).toHaveBeenCalledWith(['sessions']);
         done();
       }, 100);
     });
@@ -384,8 +380,3 @@ describe('DetailComponent', () => {
     });
   });
 });
-
-
-
-
-

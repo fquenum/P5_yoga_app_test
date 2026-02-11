@@ -55,6 +55,9 @@ describe('LoginComponent', () => {
 
     router = TestBed.inject(Router);
     
+    
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
+    
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -181,8 +184,6 @@ describe('LoginComponent', () => {
     });
 
     it('should navigate to /sessions on successful login', () => {
-      const navigateSpy = jest.spyOn(router, 'navigate');
-      
       component.form.setValue({
         email: 'test@example.com',
         password: 'password123'
@@ -202,7 +203,7 @@ describe('LoginComponent', () => {
 
       component.submit();
 
-      expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
+      expect(router.navigate).toHaveBeenCalledWith(['/sessions']);
     });
 
     it('should set onError to true on login failure', () => {

@@ -37,6 +37,9 @@ describe('AppComponent', () => {
     sessionService = TestBed.inject(SessionService);
     router = TestBed.inject(Router);
 
+    
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -70,14 +73,13 @@ describe('AppComponent', () => {
       // Arrange
       sessionService.logIn(mockSessionInfo);
       const logOutSpy = jest.spyOn(sessionService, 'logOut');
-      const navigateSpy = jest.spyOn(router, 'navigate');
 
       // Act
       component.logout();
 
       // Assert
       expect(logOutSpy).toHaveBeenCalled();
-      expect(navigateSpy).toHaveBeenCalledWith(['']);
+      expect(router.navigate).toHaveBeenCalledWith(['']);
     });
   });
 
