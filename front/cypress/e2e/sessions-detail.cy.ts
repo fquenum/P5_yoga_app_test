@@ -17,14 +17,26 @@ describe('Session Detail spec', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session',
-      }, []).as('session')
+      }, [
+        {
+          id: 1,
+          name: 'morning yoga',
+          description: 'A relaxing morning yoga session',
+          date: '2024-12-20T10:00:00',
+          teacher_id: 1,
+          users: [2, 3],
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01'
+        }
+      ]).as('session')
 
       cy.get('input[formControlName=email]').type("user@studio.com")
       cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
 
       cy.url().should('include', '/sessions')
+    })
 
-      // ⚠️ Définir les intercepts ici AVANT chaque test
+    it('should display session details', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -37,7 +49,7 @@ describe('Session Detail spec', () => {
         users: [2, 3],
         createdAt: '2024-01-01T00:00:00',
         updatedAt: '2024-01-15T00:00:00'
-      }).as('sessionDetail')
+      })
 
       cy.intercept({
         method: 'GET',
@@ -48,11 +60,12 @@ describe('Session Detail spec', () => {
         lastName: 'Delahaye',
         createdAt: '2024-01-01T00:00:00',
         updatedAt: '2024-01-01T00:00:00'
-      }).as('teacher')
-    })
+      })
 
-    it('should display session details', () => {
-      cy.visit('/sessions/detail/1')
+      // Cliquer sur Detail depuis la liste
+      cy.get('button span.ml1').contains('Detail').first().click()
+
+      cy.url().should('include', '/sessions/detail/1')
 
       cy.get('h1').should('contain', 'Morning Yoga')
       cy.contains('Margot DELAHAYE').should('be.visible')
@@ -62,26 +75,94 @@ describe('Session Detail spec', () => {
     })
 
     it('should display Participate button when user is not participating', () => {
-      cy.visit('/sessions/detail/1')
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session/1',
+      }, {
+        id: 1,
+        name: 'morning yoga',
+        date: '2024-12-20T10:00:00',
+        teacher_id: 1,
+        description: 'A relaxing morning yoga session',
+        users: [2, 3],
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      })
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/teacher/1',
+      }, {
+        id: 1,
+        firstName: 'Margot',
+        lastName: 'Delahaye'
+      })
+
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Participate').should('be.visible')
       cy.get('button span.ml1').contains('Do not participate').should('not.exist')
     })
 
     it('should NOT display Delete button for regular user', () => {
-      cy.visit('/sessions/detail/1')
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session/1',
+      }, {
+        id: 1,
+        name: 'morning yoga',
+        date: '2024-12-20T10:00:00',
+        teacher_id: 1,
+        description: 'A relaxing morning yoga session',
+        users: [],
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      })
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/teacher/1',
+      }, {
+        id: 1,
+        firstName: 'Margot',
+        lastName: 'Delahaye'
+      })
+
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Delete').should('not.exist')
     })
 
     it('should participate in session', () => {
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session/1',
+      }, {
+        id: 1,
+        name: 'morning yoga',
+        date: '2024-12-20T10:00:00',
+        teacher_id: 1,
+        description: 'A relaxing morning yoga session',
+        users: [2, 3],
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      })
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/teacher/1',
+      }, {
+        id: 1,
+        firstName: 'Margot',
+        lastName: 'Delahaye'
+      })
+
       cy.intercept('POST', '/api/session/1/participate/1', {})
 
-      cy.visit('/sessions/detail/1')
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Participate').should('be.visible')
 
-      // Redéfinir l'intercept pour la session APRÈS participation
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -120,14 +201,26 @@ describe('Session Detail spec', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session',
-      }, [])
+      }, [
+        {
+          id: 1,
+          name: 'morning yoga',
+          description: 'A relaxing morning yoga session',
+          date: '2024-12-20T10:00:00',
+          teacher_id: 1,
+          users: [1, 2, 3],
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01'
+        }
+      ])
 
       cy.get('input[formControlName=email]').type("user@studio.com")
       cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
 
       cy.url().should('include', '/sessions')
+    })
 
-      // Intercepts pour utilisateur DÉJÀ participant
+    it('should display "Do not participate" button when user is already participating', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -137,7 +230,7 @@ describe('Session Detail spec', () => {
         date: '2024-12-20T10:00:00',
         teacher_id: 1,
         description: 'A relaxing morning yoga session',
-        users: [1, 2, 3], // User 1 EST dans la liste
+        users: [1, 2, 3],
         createdAt: '2024-01-01T00:00:00',
         updatedAt: '2024-01-01T00:00:00'
       })
@@ -150,23 +243,14 @@ describe('Session Detail spec', () => {
         firstName: 'Margot',
         lastName: 'Delahaye'
       })
-    })
 
-    it('should display "Do not participate" button when user is already participating', () => {
-      cy.visit('/sessions/detail/1')
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Do not participate').should('be.visible')
       cy.get('button span.ml1').contains('Participate').should('not.exist')
     })
 
     it('should unparticipate from session', () => {
-      cy.intercept('DELETE', '/api/session/1/participate/1', {})
-
-      cy.visit('/sessions/detail/1')
-
-      cy.get('button span.ml1').contains('Do not participate').should('be.visible')
-
-      // Redéfinir l'intercept APRÈS le clic
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -176,7 +260,36 @@ describe('Session Detail spec', () => {
         date: '2024-12-20T10:00:00',
         teacher_id: 1,
         description: 'A relaxing morning yoga session',
-        users: [2, 3], // User 1 retiré
+        users: [1, 2, 3],
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      })
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/teacher/1',
+      }, {
+        id: 1,
+        firstName: 'Margot',
+        lastName: 'Delahaye'
+      })
+
+      cy.intercept('DELETE', '/api/session/1/participate/1', {})
+
+      cy.get('button span.ml1').contains('Detail').first().click()
+
+      cy.get('button span.ml1').contains('Do not participate').should('be.visible')
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session/1',
+      }, {
+        id: 1,
+        name: 'morning yoga',
+        date: '2024-12-20T10:00:00',
+        teacher_id: 1,
+        description: 'A relaxing morning yoga session',
+        users: [2, 3],
         createdAt: '2024-01-01T00:00:00',
         updatedAt: '2024-01-01T00:00:00'
       })
@@ -205,14 +318,26 @@ describe('Session Detail spec', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session',
-      }, [])
+      }, [
+        {
+          id: 1,
+          name: 'morning yoga',
+          description: 'A relaxing morning yoga session',
+          date: '2024-12-20T10:00:00',
+          teacher_id: 1,
+          users: [1, 2],
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01'
+        }
+      ])
 
       cy.get('input[formControlName=email]').type("admin@studio.com")
       cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
 
       cy.url().should('include', '/sessions')
+    })
 
-      // Intercepts pour admin
+    it('should display Delete button for admin', () => {
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -235,61 +360,43 @@ describe('Session Detail spec', () => {
         firstName: 'Margot',
         lastName: 'Delahaye'
       })
-    })
 
-    it('should display Delete button for admin', () => {
-      cy.visit('/sessions/detail/1')
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Delete').should('be.visible')
     })
 
     it('should NOT display Participate or Do not participate buttons for admin', () => {
-      cy.visit('/sessions/detail/1')
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session/1',
+      }, {
+        id: 1,
+        name: 'morning yoga',
+        date: '2024-12-20T10:00:00',
+        teacher_id: 1,
+        description: 'A relaxing morning yoga session',
+        users: [1, 2],
+        createdAt: '2024-01-01T00:00:00',
+        updatedAt: '2024-01-01T00:00:00'
+      })
+
+      cy.intercept({
+        method: 'GET',
+        url: '/api/teacher/1',
+      }, {
+        id: 1,
+        firstName: 'Margot',
+        lastName: 'Delahaye'
+      })
+
+      cy.get('button span.ml1').contains('Detail').first().click()
 
       cy.get('button span.ml1').contains('Participate').should('not.exist')
       cy.get('button span.ml1').contains('Do not participate').should('not.exist')
     })
 
     it('should delete session and redirect to sessions list', () => {
-      cy.intercept('DELETE', '/api/session/1', {})
-      cy.intercept({
-        method: 'GET',
-        url: '/api/session',
-      }, [])
-
-      cy.visit('/sessions/detail/1')
-
-      cy.get('button span.ml1').contains('Delete').click()
-
-      cy.contains('Session deleted !').should('be.visible')
-      cy.url().should('include', '/sessions')
-    })
-  })
-
-  describe('Back button', () => {
-    it('should navigate back when clicking back button', () => {
-      cy.visit('/login')
-
-      cy.intercept('POST', '/api/auth/login', {
-        body: {
-          id: 1,
-          username: 'user@studio.com',
-          firstName: 'User',
-          lastName: 'Test',
-          admin: false
-        },
-      })
-
-      cy.intercept({
-        method: 'GET',
-        url: '/api/session',
-      }, [])
-
-      cy.get('input[formControlName=email]').type("user@studio.com")
-      cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
-
-      cy.url().should('include', '/sessions')
-
       cy.intercept({
         method: 'GET',
         url: '/api/session/1',
@@ -313,12 +420,86 @@ describe('Session Detail spec', () => {
         lastName: 'Delahaye'
       })
 
-      cy.visit('/sessions/detail/1')
+      cy.intercept('DELETE', '/api/session/1', {})
+      
+      cy.intercept({
+        method: 'GET',
+        url: '/api/session',
+      }, [])
 
-      // Cliquer sur le bouton avec l'icône arrow_back
-      cy.get('button mat-icon').parent().click()
+      cy.get('button span.ml1').contains('Detail').first().click()
 
+      cy.get('button span.ml1').contains('Delete').click()
+
+      cy.contains('Session deleted !').should('be.visible')
       cy.url().should('include', '/sessions')
+    })
+  })
+
+  describe('Back button', () => {
+    it('should navigate back when clicking back button', () => {
+      cy.visit('/login')
+
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1,
+      username: 'user@studio.com',
+      firstName: 'User',
+      lastName: 'Test',
+      admin: false
+    },
+  })
+
+  cy.intercept({
+    method: 'GET',
+    url: '/api/session',
+  }, [
+    {
+      id: 1,
+      name: 'morning yoga',
+      description: 'A relaxing morning yoga session',
+      date: '2024-12-20T10:00:00',
+      teacher_id: 1,
+      users: [],
+      createdAt: '2024-01-01',
+      updatedAt: '2024-01-01'
+    }
+  ])
+
+  cy.get('input[formControlName=email]').type("user@studio.com")
+  cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`)
+
+  cy.url().should('include', '/sessions')
+
+  cy.intercept({
+    method: 'GET',
+    url: '/api/session/1',
+  }, {
+    id: 1,
+    name: 'morning yoga',
+    date: '2024-12-20T10:00:00',
+    teacher_id: 1,
+    description: 'A relaxing morning yoga session',
+    users: [],
+    createdAt: '2024-01-01T00:00:00',
+    updatedAt: '2024-01-01T00:00:00'
+  })
+
+  cy.intercept({
+    method: 'GET',
+    url: '/api/teacher/1',
+  }, {
+    id: 1,
+    firstName: 'Margot',
+    lastName: 'Delahaye'
+  })
+
+  cy.get('button span.ml1').contains('Detail').first().click()
+
+  // Cibler spécifiquement le bouton back avec l'icône arrow_back
+  cy.get('button mat-icon').contains('arrow_back').parent().click()
+
+  cy.url().should('include', '/sessions')
     })
   })
 })

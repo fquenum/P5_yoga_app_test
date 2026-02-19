@@ -86,4 +86,27 @@ describe('Register spec', () => {
     // Essayer de soumettre sans remplir
     cy.get('button[type=submit]').should('be.disabled')
   })
+  it('should display error with lastName too short', () => {
+  cy.visit('/register')
+
+  cy.get('input[formControlName=firstName]').type("John")
+  cy.get('input[formControlName=lastName]').type("Do") // moins de 3 caractères
+  cy.get('input[formControlName=email]').type("john@test.com")
+  cy.get('input[formControlName=password]').type("password123")
+
+  cy.get('button[type=submit]').should('be.disabled')
+})
+
+it('should display error with password too long', () => {
+  cy.visit('/register')
+
+  cy.get('input[formControlName=firstName]').type("John")
+  cy.get('input[formControlName=lastName]').type("Doe")
+  cy.get('input[formControlName=email]').type("john@test.com")
+  
+  const longPassword = 'a'.repeat(41) // Plus de 40 caractères
+  cy.get('input[formControlName=password]').type(longPassword)
+
+  cy.get('button[type=submit]').should('be.disabled')
+})
 })
