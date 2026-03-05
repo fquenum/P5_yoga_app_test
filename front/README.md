@@ -1,72 +1,82 @@
-# Yoga
+# Frontend — Yoga Studio App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+Angular single-page application for managing yoga sessions, with comprehensive unit and E2E test coverage.
 
-## Start the project
+← [Back to main README](../README.md)
 
-Git clone:
+---
 
-> git clone https://github.com/OpenClassrooms-Student-Center/P5-Full-Stack-testing
+## Tech Stack
 
-Go inside folder:
+- **Angular** — SPA framework
+- **TypeScript**
+- **Angular Material** — UI components
+- **Jest** — Unit testing
+- **Cypress** — End-to-end testing
+- **NYC (Istanbul)** — E2E coverage reporting
 
-> cd yoga
+---
 
-Install dependencies:
+## Prerequisites
 
-> npm install
+- Node.js & npm
 
-Launch Front-end:
+---
 
-> npm run start;
+## Setup & Installation
 
+```bash
+cd front
+npm install
+```
 
-## Ressources
+### Run the development server
 
-### Mockoon env 
+```bash
+ng serve
+```
 
-### Postman collection
+App available at `http://localhost:4200`.
 
-For Postman import the collection
+> The backend must be running at `http://localhost:8080` for API calls to work.
 
-> ressources/postman/yoga.postman_collection.json 
+---
+## Running Tests
 
-by following the documentation: 
+### Unit Tests (Jest)
 
-https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman
+```bash
+npm run test
+```
 
+With coverage:
 
-### MySQL
+```bash
+npm run test:coverage
+```
 
-SQL script for creating the schema is available `ressources/sql/script.sql`
+Coverage report available at:
+```
+coverage/lcov-report/index.html
+```
 
-By default the admin account is:
-- login: yoga@studio.com
-- password: test!1234
+**Coverage target: ≥ 80%**
 
+### End-to-End Tests (Cypress)
 
-### Test
+```bash
+npm run e2e
+```
 
-#### E2E
+With coverage:
 
-Launching e2e test:
+```bash
+npm run e2e:coverage
+```
 
-> npm run e2e
+E2E coverage report available at:
+```
+coverage/lcov-report/index.html
+```
 
-Generate coverage report (you should launch e2e test before):
-
-> npm run e2e:coverage
-
-Report is available here:
-
-> front/coverage/lcov-report/index.html
-
-#### Unitary test
-
-Launching test:
-
-> npm run test
-
-for following change:
-
-> npm run test:watch
+**Coverage target: ≥ 80%**
